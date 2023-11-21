@@ -11,8 +11,8 @@ handler = EventHandler()
 map = Map(mainDisplay)
 
 #Sprites
-SPRITE = {"PLAYER1": Texture("assets/tankG.png", isAnimated = True, frames = 3, frameTime = 20),
-          "PLAYER2": Texture("assets/tankR.png", isAnimated = True, frames = 3, frameTime = 20)}
+SPRITE = {"PLAYER1": Texture("resources/sprites/tankG.png", isAnimated = True, frames = 3, frameTime = 20),
+          "PLAYER2": Texture("resources/sprites/tankR.png", isAnimated = True, frames = 3, frameTime = 20)}
 
 test_image = pg.surface.Surface((50, 50))
 test_image.fill('green4')

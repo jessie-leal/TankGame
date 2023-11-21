@@ -47,7 +47,7 @@ class Player():
         self.dummy = False
 
         self.texture = texture if texture != None else pg.image.load("assets/none.png")
-        self.smoke = Texture("assets/smoke.png", isAnimated = True, frames = 6, frameTime = 10)
+        self.smoke = Texture("resources/sprites/smoke.png", isAnimated = True, frames = 6, frameTime = 10)
         # self.smoke.image = pg.transform.scale(self.smoke.image, PLAYER_SIZE)
         self.smoke.image.set_alpha(0)
         self.image = pg.surface.Surface(PLAYER_SIZE)
@@ -113,7 +113,7 @@ class Player():
         
 class Bullet():
     def __init__(self, coord, angleRad, owner = None):
-        self.texture = pg.image.load("assets/bullet.png")
+        self.texture = pg.image.load("resources/sprites/bullet.png")
         self.texture = pg.transform.scale(self.texture, (BULLET_WIDTH*1.4, BULLET_WIDTH*1.4))
         self.image = pg.Surface(BULLET_SIZE)
         self.image.fill(pg.color.Color('red'))
