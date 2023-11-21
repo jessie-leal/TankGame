@@ -17,7 +17,7 @@ SPRITE = {"PLAYER1": Texture("resources/sprites/tankG.png", isAnimated = True, f
 test_image = pg.surface.Surface((50, 50))
 test_image.fill('green4')
 test_rect = test_image.get_rect()
-test_rect.center = ((SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
+test_rect.center = ((SCREEN_WIDTH/2, SCREEN_HEIGHT/2-25))
 print(test_rect.left, test_rect.right, test_rect.top, test_rect.center)
 
 list_players.append(Player(1, texture = SPRITE["PLAYER1"], coord = (SCREEN_WIDTH/3, SCREEN_HEIGHT/2), controls=CONTROL_PRESET["WASD"]))
@@ -42,6 +42,6 @@ while gameActive:
     # map.drawMaze()
     map.redraw()
 
-    handler.update_screen()
     mainDisplay.blit(test_image, test_rect)
+    handler.update_screen()
     pg.display.update()

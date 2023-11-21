@@ -138,17 +138,37 @@ class Bullet():
         #Bounce
         collidedObject = self.rect.collideobjects([test_rect])
         if(collidedObject != None):
-            print(collidedObject.center, self.rect.center)
-            if self.rect.center[1] > collidedObject.top and self.rect.center[1] < collidedObject.bottom: # x-axis bounce
-                self.angle = math.pi - self.angle
-            if self.rect.center[0] > collidedObject.left and self.rect.center[0] > collidedObject.top: # y-axis bounce
-                # if self.rect.topright < collidedObject.center[0]
+            side = self.determine_side(collidedObject)
+            if side == "TOP" or side == "BOTTOM":
                 self.angle = -self.angle
+            elif side == "LEFT" or side == "RIGHT":
+                self.angle = math.pi - self.angle
+        
         # if self.y > SCREEN_HEIGHT - self.rect.height or self.y < 0:
         #     self.angle = -self.angle
         # if self.x > SCREEN_WIDTH - self.rect.width or self.x < 0:
         #     self.angle = math.pi - self.angle
 
+    def determine_side(self, collidedObject):
+        # Slopes of collidedObject (top left to bottom right) and (top right to bottom left)
+        slope1 = (collidedObject.topleft[1] - collidedObject.bottomright[1]) / (collidedObject.topleft[0] - collidedObject.bottomright[0])
+        slope2 = (collidedObject.topright[1] - collidedObject.bottomleft[1]) / (collidedObject.topright[0] - collidedObject.bottomleft[0])
+
+        # Check if bullet is between the two slopes
+        isAbove1 = self.rect.center[1] < slope1 * self.rect.center[0] + (collidedObject.topleft[1] - slope1 * collidedObject.topleft[0])
+        isAbove2 = self.rect.center[1] < slope2 * self.rect.center[0] + (collidedObject.topright[1] - slope2 * collidedObject.topright[0])
+        
+        if isAbove1 and isAbove2:
+            return "TOP"
+        elif not isAbove1 and not isAbove2:
+            return "BOTTOM"
+        elif isAbove1 and not isAbove2:
+            return "RIGHT"
+        elif not isAbove1 and isAbove2:
+            return "LEFT"
+        else:
+            return "ERROR"
+        
 class Laser():
     def __init__(self, coord, angleRad, owner = None):
         self.x = coord[0]
