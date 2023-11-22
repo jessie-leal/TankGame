@@ -167,12 +167,12 @@ class Bullet():
                 self.angle = -self.angle
             elif side == "LEFT" or side == "RIGHT":
                 self.angle = math.pi - self.angle
+            if collidedObject.collidepoint(self.rect.topleft) and collidedObject.collidepoint(self.rect.bottomright):
+                self.delete_self()
 
         #Delete bullet if out of bounds or lifespan is 0
         if self.x > SCREEN_WIDTH + 10 or self.x < -10 or self.y > SCREEN_HEIGHT + 10 or self.y < -10 or self.lifespan <= 0:
-            if self in list_bullets:
-                self.owner.magazine += 1
-                list_bullets.remove(self)
+            self.delete_self()
 
 
     def determine_side(self, collidedObject):
@@ -194,6 +194,12 @@ class Bullet():
             return "LEFT"
         else:
             return "ERROR"
+        
+    def delete_self(self):
+        if self in list_bullets:
+            self.owner.magazine += 1
+            list_bullets.remove(self)
+
         
 class Laser():
     def __init__(self, coord, angleRad, owner = None):
