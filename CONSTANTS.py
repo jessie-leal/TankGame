@@ -4,7 +4,7 @@ import pygame as pg
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_RES = (SCREEN_WIDTH, SCREEN_HEIGHT)
-SCREEN_FPS = 60 #Also controls the speed of the game. 60FPS as base
+SCREEN_FPS = 120 #Also controls the speed of the game. 60FPS as base
 
 #Player Settings
 PLAYER_WIDTH = 40
@@ -23,7 +23,7 @@ BULLET_WIDTH = 10
 BULLET_SIZE = (BULLET_WIDTH, BULLET_WIDTH)
 BULLET_SPEED = 4*(60/SCREEN_FPS)
 BULLET_DECELERATION = 0.00
-BULLET_LIFESPAN = 200
+BULLET_LIFESPAN = 200 * (SCREEN_FPS/60)
 
 #Debug
 DEBUG = False

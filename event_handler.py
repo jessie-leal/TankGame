@@ -36,7 +36,6 @@ class EventHandler():
                             bullet.lifespan = 0
                             player.getHit()
                         
-
     def update_screen(self):
         for player in list_players:
             # Rotate image but not rect

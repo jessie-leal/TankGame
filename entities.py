@@ -82,8 +82,8 @@ class Player():
     def move(self, keys):
         current_coords = (self.x, self.y)
         if keys[self.controls["BACK"]]:
-            self.x -= math.cos(math.radians(self.angle))
-            self.y -= math.sin(math.radians(self.angle))
+            self.x -= math.cos(math.radians(self.angle)) * PLAYER_SPEED
+            self.y -= math.sin(math.radians(self.angle)) * PLAYER_SPEED
             self.texture.reverse = True
             self.texture.update()
         if keys[self.controls["FORWARD"]]:
@@ -157,8 +157,8 @@ class Bullet():
         self.lifespan -= 1
         self.speed *= 1 - BULLET_DECELERATION
         #Fade out
-        if self.lifespan < 20:
-            self.texture.set_alpha(self.lifespan * 10)
+        if self.lifespan <= BULLET_LIFESPAN * 0.1:
+            self.texture.set_alpha((self.lifespan / (BULLET_LIFESPAN * 0.1) * 255))
         #Bounce
         collidedObject = self.rect.collideobjects(collision_list)
         if(collidedObject != None):
@@ -169,6 +169,14 @@ class Bullet():
                 self.angle = math.pi - self.angle
             if collidedObject.collidepoint(self.rect.topleft) and collidedObject.collidepoint(self.rect.bottomright):
                 self.delete_self()
+
+        temp_rect = self.rect.copy()
+        temp_rect.center = (self.x, self.y)
+        if collidedObject != None:
+            if collidedObject.colliderect(temp_rect):
+                self.x += math.cos(self.angle) * self.speed
+                self.y += math.sin(self.angle) * self.speed
+        self.rect.center = (self.x, self.y)
 
         #Delete bullet if out of bounds or lifespan is 0
         if self.x > SCREEN_WIDTH + 10 or self.x < -10 or self.y > SCREEN_HEIGHT + 10 or self.y < -10 or self.lifespan <= 0:
