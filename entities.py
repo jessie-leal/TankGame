@@ -1,5 +1,4 @@
-from collections.abc import Iterable
-from typing import Any
+from global_vars import *
 import pygame as pg
 from CONSTANTS import *
 import math
@@ -9,6 +8,7 @@ class Texture():
         self.image = pg.image.load(image)
         self.subImages = []
         self.isAnimated = isAnimated
+        self.reverse = False
         self.frames = frames
         self.frameTime = frameTime
 
@@ -17,12 +17,20 @@ class Texture():
 
     def update(self):
         if self.isAnimated:
-            if self.currentFrameTime >= self.frameTime:
-                self.currentFrameTime = 0
-                self.currentFrame += 1
-                if self.currentFrame >= self.frames:
-                    self.currentFrame = 0
-            self.currentFrameTime += 1
+            if self.reverse:
+                if self.currentFrameTime >= self.frameTime:
+                    self.currentFrameTime = 0
+                    self.currentFrame -= 1
+                    if self.currentFrame < 0:
+                        self.currentFrame = self.frames - 1
+                self.currentFrameTime += 1
+            else:
+                if self.currentFrameTime >= self.frameTime:
+                    self.currentFrameTime = 0
+                    self.currentFrame += 1
+                    if self.currentFrame >= self.frames:
+                        self.currentFrame = 0
+                self.currentFrameTime += 1
 
     def call(self):
         if self.isAnimated:
@@ -72,13 +80,16 @@ class Player():
                              }
     
     def move(self, keys):
-        if keys[self.controls["FORWARD"]]:
-            self.x += math.cos(math.radians(self.angle)) * PLAYER_SPEED
-            self.y += math.sin(math.radians(self.angle)) * PLAYER_SPEED
-            self.texture.update()
+        current_coords = (self.x, self.y)
         if keys[self.controls["BACK"]]:
             self.x -= math.cos(math.radians(self.angle))
             self.y -= math.sin(math.radians(self.angle))
+            self.texture.reverse = True
+            self.texture.update()
+        if keys[self.controls["FORWARD"]]:
+            self.x += math.cos(math.radians(self.angle)) * PLAYER_SPEED
+            self.y += math.sin(math.radians(self.angle)) * PLAYER_SPEED
+            self.texture.reverse = False
             self.texture.update()
         if keys[self.controls["LEFT"]]:
             self.angle -= PLAYER_TURNING_SPEED
@@ -86,6 +97,23 @@ class Player():
         if keys[self.controls["RIGHT"]]:
             self.angle += PLAYER_TURNING_SPEED
             self.texture.update()
+        
+        if self.validate_movement():
+            self.update_location()
+        else:
+            self.x = current_coords[0]
+            self.y = current_coords[1]
+
+    def validate_movement(self):
+        collidedObject = self.rect.collideobjects(collision_list)
+        temp_rect = self.rect.copy()
+        temp_rect.center = (self.x, self.y)
+        if collidedObject != None:
+            if collidedObject.colliderect(temp_rect):
+                return False
+        if self.x < 0 or self.x > SCREEN_WIDTH or self.y < 0 or self.y > SCREEN_HEIGHT:
+            return False
+        return True
     
     def update_location(self):
         self.rect.center = (self.x, self.y)
@@ -99,10 +127,6 @@ class Player():
             return Bullet((self.rect.centerx + math.sqrt(0.5)*self.rect.width*math.cos(angle_rad), #Edge of player in circle
                                self.rect.centery + math.sqrt(0.5)*self.rect.height*math.sin(angle_rad)), #Edge of player
                                angle_rad, self)
-        elif self.currentPowerup == "Laser":
-            return Laser((self.rect.centerx + math.sqrt(0.5)*self.rect.width*math.cos(angle_rad), #Edge of player in circle
-                                 self.rect.centery + math.sqrt(0.5)*self.rect.height*math.sin(angle_rad)), #Edge of player
-                                 angle_rad, self)
         
     def getHit(self):
         if self.hitPoints > 0:
@@ -126,7 +150,7 @@ class Bullet():
         self.speed = BULLET_SPEED
         self.owner = owner
 
-    def update_location(self, test_rect):
+    def update_location(self):
         self.x += math.cos(self.angle) * self.speed
         self.y += math.sin(self.angle) * self.speed
         self.rect.center = (self.x, self.y)
@@ -136,18 +160,20 @@ class Bullet():
         if self.lifespan < 20:
             self.texture.set_alpha(self.lifespan * 10)
         #Bounce
-        collidedObject = self.rect.collideobjects([test_rect])
+        collidedObject = self.rect.collideobjects(collision_list)
         if(collidedObject != None):
             side = self.determine_side(collidedObject)
             if side == "TOP" or side == "BOTTOM":
                 self.angle = -self.angle
             elif side == "LEFT" or side == "RIGHT":
                 self.angle = math.pi - self.angle
-        
-        # if self.y > SCREEN_HEIGHT - self.rect.height or self.y < 0:
-        #     self.angle = -self.angle
-        # if self.x > SCREEN_WIDTH - self.rect.width or self.x < 0:
-        #     self.angle = math.pi - self.angle
+
+        #Delete bullet if out of bounds or lifespan is 0
+        if self.x > SCREEN_WIDTH + 10 or self.x < -10 or self.y > SCREEN_HEIGHT + 10 or self.y < -10 or self.lifespan <= 0:
+            if self in list_bullets:
+                self.owner.magazine += 1
+                list_bullets.remove(self)
+
 
     def determine_side(self, collidedObject):
         # Slopes of collidedObject (top left to bottom right) and (top right to bottom left)

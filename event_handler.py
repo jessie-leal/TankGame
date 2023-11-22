@@ -22,18 +22,12 @@ class EventHandler():
         for player in list_players:
             if not player.dummy:
                 player.move(self.keys)
-                player.update_location()
 
-    def update_bullets(self, test_rect):
+    def update_bullets(self):
         for bullet in list_bullets:
-            bullet.update_location(test_rect)
-            #Delete bullet if out of bounds or lifespan is 0
-            if bullet.x > SCREEN_WIDTH + 10 or bullet.x < -10 or bullet.y > SCREEN_HEIGHT + 10 or bullet.y < -10 or bullet.lifespan <= 0:
-                if bullet in list_bullets:
-                    bullet.owner.magazine += 1
-                    list_bullets.remove(bullet)
+            bullet.update_location()
 
-    def check_collisions(self):
+    def check_hit(self):
         for bullet in list_bullets:
             for player in list_players:
                 if bullet.owner != player:
@@ -47,7 +41,7 @@ class EventHandler():
         for player in list_players:
             # Rotate image but not rect
             current_frame = player.texture.call()
-            current_frame = pg.transform.scale(current_frame, (PLAYER_WIDTH, PLAYER_WIDTH))
+            current_frame = pg.transform.scale(current_frame, (PLAYER_WIDTH*1.5, PLAYER_WIDTH*1.5))
             rotated_texture = pg.transform.rotate(current_frame, -player.angle)
             rotated_rect = rotated_texture.get_rect(center=player.rect.center)
             mainDisplay.blit(rotated_texture, rotated_rect)
