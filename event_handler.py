@@ -1,26 +1,38 @@
 import pygame as pg
-from CONSTANTS import *
 from global_vars import *
+from CONSTANTS import *
 
 class EventHandler():
     def __init__(self):
         self.display = mainDisplay
         self.events = None
         self.keys = None
+        self.gameActive = False
+        self.programActive = True
 
     def listen(self):
         for event in self.events:
-            if event.type == pg.QUIT or self.keys[pg.K_ESCAPE]:
+            if event.type == pg.QUIT:
                 pg.quit()
+                quit()
             if event.type == pg.KEYDOWN:
-                for player in list_players:
-                    if not player.dummy:
-                        if event.key == player.controls["SHOOT"] and player.magazine > 0:
-                            list_bullets.append(player.shoot())
+                if event.key == pg.K_SPACE and not self.gameActive:
+                    self.gameActive = True
+                    print("Game started")
+                if event.key == pg.K_r and self.gameActive:
+                    self.reset()
+                    self.gameActive = False
+                    print("Game reset")
 
     def player_control_process(self):
+        for event in self.events:
+            if event.type == pg.KEYDOWN:
+                for player in list_players:
+                    if not player.hitPoints <= 0:
+                        if event.key == player.controls["SHOOT"] and player.magazine > 0:
+                            list_bullets.append(player.shoot())
         for player in list_players:
-            if not player.dummy:
+            if not player.hitPoints <= 0:
                 player.move(self.keys)
 
     def update_bullets(self):
@@ -32,9 +44,8 @@ class EventHandler():
             for player in list_players:
                 if bullet.owner != player:
                     if bullet.rect.colliderect(player.rect):
-                        if bullet in list_bullets:
-                            bullet.lifespan = 0
-                            player.getHit()
+                        bullet.delete_self()
+                        player.getHit()
                         
     def update_screen(self):
         for player in list_players:
@@ -58,6 +69,10 @@ class EventHandler():
         # debug
         if DEBUG:
             self.debug()
+
+    def reset(self):
+        for player in list_players:
+            player.reset()
 
     def debug(self):
         font = pg.font.SysFont('Arial', 20)

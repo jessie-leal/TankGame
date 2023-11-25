@@ -42,12 +42,7 @@ class Texture():
 
 class Player():
     def __init__(self, numPlayer, texture: Texture = None, coord: tuple = (0,0), angleDeg: int = 0, controls: list = "Dummy"):
-        """
-        image: Pick color according to pygame's list of colors pg.color.THECOLORS
-        coord: (x, y) tuple
-        controls: [up, left, down, right] default is dummy
-        """
-        
+
         self.numPlayer = numPlayer
         self.hitPoints = DEFAULT_HEALTH
         self.magazine = DEFAULT_MAGAZINE_SIZE
@@ -121,7 +116,7 @@ class Player():
 
     def shoot(self):
         angle_rad = math.radians(self.angle)
-
+        print("pew")
         if self.currentPowerup == None:
             self.magazine -= 1
             return Bullet((self.rect.centerx + math.sqrt(0.5)*self.rect.width*math.cos(angle_rad), #Edge of player in circle
@@ -130,10 +125,18 @@ class Player():
         
     def getHit(self):
         if self.hitPoints > 0:
+            print("Ouch")
             self.hitPoints -= 1
             self.smoke.image.set_alpha(255//DEFAULT_HEALTH * (DEFAULT_HEALTH-self.hitPoints))
-        if self.hitPoints <= 0:
-            self.dummy = True
+
+    def reset(self, x = SCREEN_WIDTH/2, y = SCREEN_HEIGHT/2, angle = 0):
+        self.hitPoints = DEFAULT_HEALTH
+        self.magazine = DEFAULT_MAGAZINE_SIZE
+        self.currentPowerup = None
+        self.x = x
+        self.y = y
+        self.angle = angle
+        self.update_location()
         
 class Bullet():
     def __init__(self, coord, angleRad, owner = None):
