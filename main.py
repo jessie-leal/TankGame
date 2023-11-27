@@ -4,6 +4,7 @@ from global_vars import *
 from entities import *
 from mapClass import Map
 from event_handler import EventHandler
+import pygame_menu
 
 def runGame(handler):
     if handler.gameActive:
@@ -17,9 +18,39 @@ def runGame(handler):
 
         mainDisplay.blit(test_image, test_rect)
         handler.update_game_screen()
-        
+
+# define a function to set the map when selector in menu is used.
+# first declare a variable to hold a choice
+
+choice = 1
+
+def set_map(map, value):
+    global choice
+    if value == 1:
+        choice = 1
+    elif value == 2:
+        choice = 2
+    else:
+        choice = 3
+
+
+def start_the_game(choice):
+    # draw the map
+    map.draw()
+
+    # draw the maze
+    map.drawMaze(choice)
+
+
+menu = pygame_menu.Menu('Welcome', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
+# mapMenu = pygame_menu.Menu('Select a Map', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
+
+menu.add.selector('Choose Your Map :', [('Map 1', 1), ('Map 2', 2), ('Map 3', 3)], onchange=set_map)
+menu.add.button('Play', start_the_game(choice))
+menu.add.button('Quit', pygame_menu.events.EXIT)
+
 if __name__ == "__main__":
-    #Initiate pygane
+    #Initiate pygame
     pg.init()
     pg.display.set_caption("Tank Game")
     pg.display.set_icon(pg.image.load("resources/sprites/tank_icon.png"))
@@ -48,6 +79,8 @@ if __name__ == "__main__":
             runGame(handler)
         else:
             mainDisplay.fill('black')
+            menu.draw(mainDisplay)
+            menu.mainloop(mainDisplay)
 
-        
-        pg.display.update()
+
+

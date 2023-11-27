@@ -8,7 +8,7 @@ class Map():
         self.screensize = pygame.display.get_window_size()
         self.width = self.screensize[0]
         self.height = self.screensize[1]
-        self.maze = 0
+        self.maze = 1
 
     def spawnLoc(self, mazeNum, playerNum)-> (int, int, int):
 
@@ -198,4 +198,4 @@ class Map():
 
 
         self.draw()
-        self.drawMaze(1)
+        self.drawMaze(self.maze)
