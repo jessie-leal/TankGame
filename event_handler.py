@@ -9,6 +9,7 @@ class EventHandler():
         self.keys = None
         self.gameActive = False
         self.programActive = True
+        self.friendlyFire = True
     
     '''
     Listen for events. Primarily for quitting the game and certain key presses.
@@ -55,7 +56,7 @@ class EventHandler():
     def check_hit(self):
         for bullet in list_bullets:
             for player in list_players:
-                if bullet.owner != player:
+                if bullet.owner != player or self.friendlyFire:
                     if bullet.rect.colliderect(player.rect):
                         bullet.delete_self()
                         player.getHit()
@@ -64,7 +65,7 @@ class EventHandler():
     Blits and draws everything game-related to the screen. 
     Rotates the player image according to the player's angle.
     '''   
-    def update_screen(self):
+    def update_game_screen(self):
         for player in list_players:
             # Rotate image but not rect
             current_frame = player.texture.call()

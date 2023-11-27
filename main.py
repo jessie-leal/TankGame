@@ -16,7 +16,7 @@ def runGame(handler):
         map.redraw()
 
         mainDisplay.blit(test_image, test_rect)
-        handler.update_screen()
+        handler.update_game_screen()
         
 if __name__ == "__main__":
     #Initiate pygane
@@ -46,5 +46,8 @@ if __name__ == "__main__":
 
         if handler.gameActive:
             runGame(handler)
+        else:
+            mainDisplay.fill('black')
+
         
         pg.display.update()
