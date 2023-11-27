@@ -10,12 +10,12 @@ class Wall:
     def __init__(self, width, height, xpos, ypos):
         # self.image = pygame.image.load("resources/wall2.jpg")
         self.image = pygame.surface.Surface((width, height))
-        self.image.fill('green4')
+        self.image.fill('blue')
         self.image = pygame.transform.scale(self.image, (width, height))
         self.rect = pygame.Rect(self.image.get_rect())
         self.x = xpos
         self.y = ypos
-        self.rect.center = (self.x, self.y)
+        self.rect.topleft = (self.x, self.y)
 
     '''
     Define a method draw() which will take in a
