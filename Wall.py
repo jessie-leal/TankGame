@@ -8,7 +8,7 @@ import pygame
 #https://pixabay.com/photos/grass-lawn-field-meadow-grassy-84622/
 class Wall:
     def __init__(self, width, height, xpos, ypos):
-        self.image = pygame.image.load("Resources/wall2.jpg")
+        self.image = pygame.image.load("Resources/brickPattern.jpg")
         self.image = pygame.transform.scale(self.image, (width, height))
         self.rect = pygame.Rect(self.image.get_rect())
         self.x = xpos

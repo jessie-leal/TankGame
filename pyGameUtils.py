@@ -26,6 +26,12 @@ class EventHandler:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+
+            #not needed
+            #elif self.menu.is_enabled():
+             #   self.menu.update(events)
+              #  self.menu.draw(self.display)
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.display.fill((100, 90, 100))
 
