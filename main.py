@@ -33,21 +33,14 @@ def set_map(map, value):
     else:
         choice = 3
 
+def start_the_game(choice, handler):
+    # # draw the map
+    # map.draw()
 
-def start_the_game(choice):
-    # draw the map
-    map.draw()
-
-    # draw the maze
-    map.drawMaze(choice)
-
-
-menu = pygame_menu.Menu('Welcome', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
-# mapMenu = pygame_menu.Menu('Select a Map', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
-
-menu.add.selector('Choose Your Map :', [('Map 1', 1), ('Map 2', 2), ('Map 3', 3)], onchange=set_map)
-menu.add.button('Play', start_the_game(choice))
-menu.add.button('Quit', pygame_menu.events.EXIT)
+    # # draw the maze
+    # map.drawMaze(choice)
+    collision_list = map.map
+    handler.gameActive = True
 
 if __name__ == "__main__":
     #Initiate pygame
@@ -56,6 +49,13 @@ if __name__ == "__main__":
     pg.display.set_icon(pg.image.load("resources/sprites/tank_icon.png"))
     handler = EventHandler()
     map = Map(mainDisplay)
+
+    menu = pygame_menu.Menu('Welcome', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
+    # mapMenu = pygame_menu.Menu('Select a Map', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
+
+    menu.add.selector('Choose Your Map :', [('Map 1', 1), ('Map 2', 2), ('Map 3', 3)], onchange=set_map)
+    menu.add.button('Play', start_the_game(choice, handler))
+    menu.add.button('Quit', pygame_menu.events.EXIT)
 
     #Sprites
     SPRITE = {"PLAYER1": Texture("resources/sprites/tankG.png", isAnimated = True, frames = 3, frameTime = 20),
@@ -66,7 +66,6 @@ if __name__ == "__main__":
     list_players.append(player1)
     list_players.append(player2)
 
-    print("Press SPACE to start the game")
     while handler.programActive:
         # ticks per seconds
         clock.tick(SCREEN_FPS)
@@ -81,6 +80,5 @@ if __name__ == "__main__":
             mainDisplay.fill('black')
             menu.draw(mainDisplay)
             menu.mainloop(mainDisplay)
-
-
-
+        
+        pg.display.update()

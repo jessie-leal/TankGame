@@ -9,6 +9,7 @@ class Map():
         self.width = self.screensize[0]
         self.height = self.screensize[1]
         self.maze = 1
+        self.map = []
 
     def spawnLoc(self, mazeNum, playerNum)-> (int, int, int):
 

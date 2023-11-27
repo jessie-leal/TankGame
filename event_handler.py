@@ -23,7 +23,7 @@ class EventHandler():
                 if event.key == pg.K_SPACE and not self.gameActive:
                     self.gameActive = True
                     print("Game started")
-                if event.key == pg.K_r and self.gameActive:
+                if event.key == pg.K_ESCAPE and self.gameActive:
                     self.reset()
                     self.gameActive = False
                     print("Game reset")
@@ -56,7 +56,7 @@ class EventHandler():
     def check_hit(self):
         for bullet in list_bullets:
             for player in list_players:
-                if bullet.owner != player or self.friendlyFire:
+                if (bullet.owner != player or self.friendlyFire) and bullet.lifespan > BULLET_LIFESPAN-10:
                     if bullet.rect.colliderect(player.rect):
                         bullet.delete_self()
                         player.getHit()
