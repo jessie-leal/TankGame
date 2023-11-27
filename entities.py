@@ -18,6 +18,10 @@ class Texture():
         self.currentFrame = 0
         self.currentFrameTime = 0
 
+    '''
+    Updates the current frame of the texture. If the texture is not animated, the original image is returned.
+    Must be called every tick that the texture is used.
+    '''
     def update(self):
         if self.isAnimated:
             if self.reverse:
@@ -35,6 +39,9 @@ class Texture():
                         self.currentFrame = 0
                 self.currentFrameTime += 1
 
+    '''
+    Returns the current frame of the texture as a surface. If the texture is not animated, the original image is returned.
+    '''
     def call(self):
         if self.isAnimated:
             if self.isAnimated:
@@ -129,7 +136,6 @@ class Player():
             if collidedObject.colliderect(temp_rect):
                 val = (val[0], False)
             return val
-
 
         #Screen bounds
         if x > SCREEN_WIDTH - self.rect.width/2 or x < self.rect.width/2:
