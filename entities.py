@@ -84,15 +84,17 @@ class Player():
     PLAYER_SPEED and PLAYER_TURNING_SPEED are constants that can be changed in CONSTANTS.py
     '''
     def move(self, keys):
-        current_coords = (self.x, self.y)
+        new_x = self.x
+        new_y = self.y
+
         if keys[self.controls["BACK"]]:
-            self.x -= math.cos(math.radians(self.angle)) * PLAYER_SPEED
-            self.y -= math.sin(math.radians(self.angle)) * PLAYER_SPEED
+            new_x -= math.cos(math.radians(self.angle)) * PLAYER_SPEED
+            new_y -= math.sin(math.radians(self.angle)) * PLAYER_SPEED
             self.texture.reverse = True
             self.texture.update()
         if keys[self.controls["FORWARD"]]:
-            self.x += math.cos(math.radians(self.angle)) * PLAYER_SPEED
-            self.y += math.sin(math.radians(self.angle)) * PLAYER_SPEED
+            new_x += math.cos(math.radians(self.angle)) * PLAYER_SPEED
+            new_y += math.sin(math.radians(self.angle)) * PLAYER_SPEED
             self.texture.reverse = False
             self.texture.update()
         if keys[self.controls["LEFT"]]:
@@ -102,25 +104,39 @@ class Player():
             self.angle += PLAYER_TURNING_SPEED
             self.texture.update()
         
-        if self.validate_movement():
-            self.update_location()
-        else:
-            self.x = current_coords[0]
-            self.y = current_coords[1]
+        x_valid, y_valid = self.validate_movement(new_x, new_y)
+        if x_valid:
+            self.x = new_x
+        if y_valid:
+            self.y = new_y
+        self.update_location()
 
     '''
-    Dummy physics that checks if the player is colliding with anything. If so, the player is moved back to its previous location.
+    Dummy physics that checks if the player is colliding with anything. If so, the player is not allowed to move in that direction.
+    Returns two booleans (x_valid, y_valid) that determines if the player can move in the x or y direction.
     '''
-    def validate_movement(self):
-        collidedObject = self.rect.collideobjects(collision_list)
+    def validate_movement(self, x, y):
+        val = (True, True)
+        #Collision with objects
         temp_rect = self.rect.copy()
-        temp_rect.center = (self.x, self.y)
+        temp_rect.center = (x, y)
+        collidedObject = temp_rect.collideobjects(collision_list)
         if collidedObject != None:
+            temp_rect.center = (x, self.y)
             if collidedObject.colliderect(temp_rect):
-                return False
-        if self.x < 0 or self.x > SCREEN_WIDTH or self.y < 0 or self.y > SCREEN_HEIGHT:
-            return False
-        return True
+                val = (False, val[1])
+            temp_rect.center = (self.x, y)
+            if collidedObject.colliderect(temp_rect):
+                val = (val[0], False)
+            return val
+
+
+        #Screen bounds
+        if x > SCREEN_WIDTH - self.rect.width/2 or x < self.rect.width/2:
+            val = (False, val[1])
+        if y > SCREEN_HEIGHT - self.rect.height/2 or y < self.rect.height/2:
+            val = (val[0], False)
+        return val
     
     def update_location(self):
         self.rect.center = (self.x, self.y)
