@@ -5,20 +5,7 @@ from entities import *
 from mapClass import Map
 from event_handler import EventHandler
 import pygame_menu
-
-def runGame(handler):
-    if handler.gameActive:
-        # event handling
-        handler.player_control_process()
-        handler.update_bullets()
-        handler.check_hit()
         
-        # Map handling
-        map.redraw()
-
-        mainDisplay.blit(test_image, test_rect)
-        handler.update_game_screen()
-
 # define a function to set the map when selector in menu is used.
 # first declare a variable to hold a choice
 
@@ -32,15 +19,20 @@ def set_map(map, value):
         choice = 2
     else:
         choice = 3
+    currentMap.maze = choice
 
 def start_the_game(choice, handler):
     handler.gameActive = True
+    currentMap.redraw()
+    handler.currentMap = currentMap
+    handler.resetPlayers()
+    menu.disable()
 
 def create_menu() -> pygame_menu.Menu:
-    menu = pygame_menu.Menu('Welcome', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
+    menu = pygame_menu.Menu('Tank Game', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
     # mapMenu = pygame_menu.Menu('Select a Map', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
     menu.add.selector('Choose Your Map :', [('Map 1', 1), ('Map 2', 2), ('Map 3', 3)], onchange=set_map)
-    menu.add.button('Play', start_the_game(choice, handler))
+    menu.add.button('Play', lambda: start_the_game(choice, handler))
     menu.add.button('Quit', pygame_menu.events.EXIT)
 
     return menu
@@ -48,10 +40,11 @@ def create_menu() -> pygame_menu.Menu:
 if __name__ == "__main__":
     #Initiate pygame
     pg.init()
+    pg.font.init()
     pg.display.set_caption("Tank Game")
     pg.display.set_icon(pg.image.load("resources/sprites/tank_icon.png"))
     handler = EventHandler()
-    map = Map(mainDisplay)
+    currentMap = Map(mainDisplay)
 
     menu = create_menu()
 
@@ -66,7 +59,7 @@ if __name__ == "__main__":
 
     mainDisplay.fill('black')
     menu.draw(mainDisplay)
-    # menu.mainloop(mainDisplay)
+    menu.mainloop(mainDisplay)
     while handler.programActive:
         # ticks per seconds
         clock.tick(SCREEN_FPS)
@@ -74,10 +67,13 @@ if __name__ == "__main__":
         handler.keys = pg.key.get_pressed()
         handler.events = pg.event.get()
         handler.listen()
+
         if handler.gameActive:
-            runGame(handler)
-            collision_list.extend([x.rect for x in map.map if x.rect not in collision_list])
-            for x in map.map:
-                mainDisplay.blit(x.image, x.rect)
+            handler.runGame(currentMap)
+            collision_list.extend([x.rect for x in currentMap.map if x.rect not in collision_list])
+            handler.checkWinCondition()
+        elif not menu.is_enabled():
+            menu.enable()
+            menu.mainloop(mainDisplay)
 
         pg.display.update()

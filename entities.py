@@ -150,14 +150,19 @@ class Player():
 
     '''
     If the player has ammo, a bullet is created and added to the list of bullets.
+    Bullet is created at the edge of the player's circle.
+    Bullet is not created if it is already colliding with something in collision_list.
     '''
     def shoot(self):
         angle_rad = math.radians(self.angle)
         if self.currentPowerup == None:
-            self.magazine -= 1
-            return Bullet((self.rect.centerx + math.sqrt(0.5)*self.rect.width*math.cos(angle_rad), #Edge of player in circle
-                               self.rect.centery + math.sqrt(0.5)*self.rect.height*math.sin(angle_rad)), #Edge of player
-                               angle_rad, self)
+            bullet = Bullet((self.rect.centerx + math.sqrt(0.5)*self.rect.width*math.cos(angle_rad), #Edge of player in circle
+                                  self.rect.centery + math.sqrt(0.5)*self.rect.height*math.sin(angle_rad)), #Edge of player
+                                  angle_rad, self)
+            if bullet.rect.collideobjects(collision_list) == None:
+                self.magazine -= 1
+                return bullet
+            
 
     '''
     Reduces the player's health by 1. Smoke is also updated to reflect the player's health.
@@ -170,13 +175,13 @@ class Player():
     '''
     Resets the player to its default state.
     '''
-    def reset(self, x = SCREEN_WIDTH/2, y = SCREEN_HEIGHT/2, angle = 0):
+    def reset(self, coordAngle: tuple = (SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0)):
         self.hitPoints = DEFAULT_HEALTH
         self.magazine = DEFAULT_MAGAZINE_SIZE
         self.currentPowerup = None
-        self.x = x
-        self.y = y
-        self.angle = angle
+        self.x = coordAngle[0]
+        self.y = coordAngle[1]
+        self.angle = coordAngle[2]
         self.update_location()
 
 '''

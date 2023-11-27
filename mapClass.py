@@ -1,4 +1,5 @@
 import pygame.display
+from CONSTANTS import *
 
 from wallClass import *
 
@@ -10,6 +11,7 @@ class Map():
         self.height = self.screensize[1]
         self.maze = 1
         self.map = []
+        self.spawnLocs = []
 
     def spawnLoc(self, mazeNum, playerNum)-> (int, int, int):
 
@@ -17,16 +19,23 @@ class Map():
             if playerNum == 1:
                 return (50, 50, 45)
             elif playerNum == 2:
-                return (1000, 600, 225)
+                return (1200, 600, 225)
             elif playerNum == 3:
                 return (1050, 125, 135)
+        else:
+            if playerNum == 1:
+                return (50, 50, 45)
+            elif playerNum == 2:
+                return(SCREEN_WIDTH-50, SCREEN_HEIGHT-50, 225)
 
 
     #draw the edges of the map
     def draw(self):
         # bgImage = pygame.image.load("resources/fields.png")
         bgImage = pygame.image.load("resources/sprites/none.png")
-        bgImage = pygame.transform.scale(bgImage, (1280, 720))
+        bgImage = pygame.surface.Surface(SCREEN_RES)
+        bgImage.fill((0, 0, 0))
+        bgImage = pygame.transform.scale(bgImage, SCREEN_RES)
         self.display.blit(bgImage, ((0, 0)))
 
         # variables for the edges of the map
@@ -92,9 +101,6 @@ class Map():
                         self.bcwall1, self.bcwall2, self.bcwall3, self.bcwall4,
                         self.iwall1, self.iwall2, self.rcwall1, self.rcwall2]
 
-            #create a list of safe spawn locations for each player for Map 1
-            self.spawnLocs = (self.spawnLoc(1, 1), self.spawnLoc(1, 2), self.spawnLoc(1, 3))
-
         elif mazeNum == 2:
             # set the maze number
             self.maze = 2
@@ -110,22 +116,22 @@ class Map():
             self.bcwall4 = bcWall(150, 1000, self.height)
 
             # draw vertical wall variables
-            #self.tcwall1.draw(self.display)
-            #self.tcwall2.draw(self.display)
-            #self.tcwall3.draw(self.display)
-            #self.tcwall4.draw(self.display)
-            #self.bcwall1.draw(self.display)
-            #self.bcwall2.draw(self.display)
-            #self.bcwall3.draw(self.display)
-            #self.bcwall4.draw(self.display)
+            self.tcwall1.draw(self.display)
+            self.tcwall2.draw(self.display)
+            self.tcwall3.draw(self.display)
+            self.tcwall4.draw(self.display)
+            self.bcwall1.draw(self.display)
+            self.bcwall2.draw(self.display)
+            self.bcwall3.draw(self.display)
+            self.bcwall4.draw(self.display)
 
             # declare inner wall variables
             self.iwall1 = hWall(200, 200, 380)
             self.iwall2 = vWall(75, 960, 330)
 
             # draw inner wall variables
-            #self.iwall1.draw(self.display)
-            #self.iwall2.draw(self.display)
+            self.iwall1.draw(self.display)
+            self.iwall2.draw(self.display)
 
             # declare horizontal wall variables
             self.lcwall1 = lcWall(100, 400)
@@ -134,10 +140,10 @@ class Map():
             self.rcwall2 = rcWall(200, 200, self.width)
 
             # draw horizontal wall variables
-            # self.lcwall1.draw(self.display)
-            # self.lcwall2.draw(self.display)
-            #self.rcwall1.draw(self.display)
-            #self.rcwall2.draw(self.display)
+            self.lcwall1.draw(self.display)
+            self.lcwall2.draw(self.display)
+            self.rcwall1.draw(self.display)
+            self.rcwall2.draw(self.display)
 
             self.map = [self.tcwall1, self.tcwall2, self.tcwall3, self.tcwall4,
                         self.bcwall1, self.bcwall2, self.bcwall3, self.bcwall4,
@@ -190,6 +196,9 @@ class Map():
             self.map = [self.tcwall1, self.tcwall2, self.tcwall3, self.tcwall4,
                         self.bcwall1, self.bcwall2, self.bcwall3, self.bcwall4,
                         self.iwall1, self.iwall2, self.rcwall1, self.rcwall2]
+        
+        #create a list of safe spawn locations for each player for Map 
+        self.spawnLocs = (self.spawnLoc(mazeNum, 1), self.spawnLoc(mazeNum, 2), self.spawnLoc(mazeNum, 3))
 
     def redraw(self):
         self.screensize = pygame.display.get_window_size()
