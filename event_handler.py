@@ -50,7 +50,7 @@ class EventHandler():
             bullet.update_location()
 
     '''
-    Checks if a bullet has hit a player. If so, the bullet is deleted and the player takes damage.
+    Checks if a bullet has hit a non-owner player. If so, the bullet is deleted and the player takes damage.
     '''
     def check_hit(self):
         for bullet in list_bullets:
@@ -61,7 +61,8 @@ class EventHandler():
                         player.getHit()
                         
     '''
-    Blits and draws everything game-related to the screen.
+    Blits and draws everything game-related to the screen. 
+    Rotates the player image according to the player's angle.
     '''   
     def update_screen(self):
         for player in list_players:
@@ -82,7 +83,7 @@ class EventHandler():
             pg.draw.rect(mainDisplay, pg.color.Color('green'), pg.Rect(player.rect.x, player.rect.y - 10, player.rect.width * (player.hitPoints/DEFAULT_HEALTH), 5))
         for bullet in list_bullets:
             mainDisplay.blit(bullet.texture, (bullet.rect.center[0] - bullet.texture.get_width()/2, bullet.rect.center[1] - bullet.texture.get_height()/2))
-        # debug
+        # debug information. Hitboxes, FPS, number of bullets and players
         if DEBUG:
             self.debug()
 

@@ -19,8 +19,10 @@ def runGame(handler):
         handler.update_screen()
         
 if __name__ == "__main__":
-    #Pygame initialization
+    #Initiate pygane
     pg.init()
+    pg.display.set_caption("Tank Game")
+    pg.display.set_icon(pg.image.load("resources/sprites/tank_icon.png"))
     handler = EventHandler()
     map = Map(mainDisplay)
 
