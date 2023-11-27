@@ -88,9 +88,9 @@ class Map():
             self.rcwall2.draw(self.display)
 
             #create a list of which walls are used so the rectangles and their locations can be passed
-            self.map = (self.tcwall1, self.tcwall2, self.tcwall3, self.tcwall4,
+            self.map = [self.tcwall1, self.tcwall2, self.tcwall3, self.tcwall4,
                         self.bcwall1, self.bcwall2, self.bcwall3, self.bcwall4,
-                        self.iwall1, self.iwall2, self.rcwall1, self.rcwall2)
+                        self.iwall1, self.iwall2, self.rcwall1, self.rcwall2]
 
             #create a list of safe spawn locations for each player for Map 1
             self.spawnLocs = (self.spawnLoc(1, 1), self.spawnLoc(1, 2), self.spawnLoc(1, 3))
@@ -139,9 +139,9 @@ class Map():
             #self.rcwall1.draw(self.display)
             #self.rcwall2.draw(self.display)
 
-            self.map = (self.tcwall1, self.tcwall2, self.tcwall3, self.tcwall4,
+            self.map = [self.tcwall1, self.tcwall2, self.tcwall3, self.tcwall4,
                         self.bcwall1, self.bcwall2, self.bcwall3, self.bcwall4,
-                        self.iwall1, self.iwall2, self.rcwall1, self.rcwall2)
+                        self.iwall1, self.iwall2, self.rcwall1, self.rcwall2]
 
         else:
             # set the maze number
@@ -187,9 +187,9 @@ class Map():
             self.rcwall1.draw(self.display)
             self.rcwall2.draw(self.display)
 
-            self.map = (self.tcwall1, self.tcwall2, self.tcwall3, self.tcwall4,
+            self.map = [self.tcwall1, self.tcwall2, self.tcwall3, self.tcwall4,
                         self.bcwall1, self.bcwall2, self.bcwall3, self.bcwall4,
-                        self.iwall1, self.iwall2, self.rcwall1, self.rcwall2)
+                        self.iwall1, self.iwall2, self.rcwall1, self.rcwall2]
 
     def redraw(self):
         self.screensize = pygame.display.get_window_size()

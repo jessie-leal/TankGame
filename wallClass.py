@@ -15,6 +15,7 @@ class Wall:
         self.rect = pygame.Rect(self.image.get_rect())
         self.x = xpos
         self.y = ypos
+        self.rect.center = (self.x, self.y)
 
     '''
     Define a method draw() which will take in a

@@ -34,56 +34,48 @@ def set_map(map, value):
         choice = 3
 
 def start_the_game(choice, handler):
-    # # draw the map
-    # map.draw()
-
-    # # draw the maze
-    # map.drawMaze(choice)
-    collision_list = map.map
-    pass
     handler.gameActive = True
-    
-if __name__ == "__main__":
-    #Initiate pygame
-    pg.init()
-    pg.display.set_caption("Tank Game")
-    pg.display.set_icon(pg.image.load("resources/sprites/tank_icon.png"))
-    handler = EventHandler()
-    map = Map(mainDisplay)
 
+def create_menu() -> pygame_menu.Menu:
     menu = pygame_menu.Menu('Welcome', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
     # mapMenu = pygame_menu.Menu('Select a Map', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
-
     menu.add.selector('Choose Your Map :', [('Map 1', 1), ('Map 2', 2), ('Map 3', 3)], onchange=set_map)
     menu.add.button('Play', start_the_game(choice, handler))
     menu.add.button('Quit', pygame_menu.events.EXIT)
 
-    #Sprites
-    SPRITE = {"PLAYER1": Texture("resources/sprites/tankG.png", isAnimated = True, frames = 3, frameTime = 20),
+    return menu
+
+# if __name__ == "__main__":
+#Initiate pygame
+pg.init()
+pg.display.set_caption("Tank Game")
+pg.display.set_icon(pg.image.load("resources/sprites/tank_icon.png"))
+handler = EventHandler()
+map = Map(mainDisplay)
+
+menu = create_menu()
+
+#Sprites
+SPRITE = {"PLAYER1": Texture("resources/sprites/tankG.png", isAnimated = True, frames = 3, frameTime = 20),
             "PLAYER2": Texture("resources/sprites/tankR.png", isAnimated = True, frames = 3, frameTime = 20)}
 
-    player1 = Player(1, texture = SPRITE["PLAYER1"], coord = (SCREEN_WIDTH/3, SCREEN_HEIGHT/2), controls=CONTROL_PRESET["WASD"])
-    player2 = Player(2, texture = SPRITE["PLAYER2"], coord = (SCREEN_WIDTH/3*2, SCREEN_HEIGHT/2), angleDeg=180, controls=CONTROL_PRESET["ARROWS"])
-    list_players.append(player1)
-    list_players.append(player2)
+player1 = Player(1, texture = SPRITE["PLAYER1"], coord = (SCREEN_WIDTH/3, SCREEN_HEIGHT/2), controls=CONTROL_PRESET["WASD"])
+player2 = Player(2, texture = SPRITE["PLAYER2"], coord = (SCREEN_WIDTH/3*2, SCREEN_HEIGHT/2), angleDeg=180, controls=CONTROL_PRESET["ARROWS"])
+list_players.append(player1)
+list_players.append(player2)
 
-    mainDisplay.fill('black')
-    menu.draw(mainDisplay)
-    menu.mainloop(mainDisplay)
-    while handler.programActive:
-        # ticks per seconds
-        clock.tick(SCREEN_FPS)
-        # stuff to update every tick
-        handler.keys = pg.key.get_pressed()
-        handler.events = pg.event.get()
-        handler.listen()
+mainDisplay.fill('black')
+menu.draw(mainDisplay)
+# menu.mainloop(mainDisplay)
+while handler.programActive:
+    # ticks per seconds
+    clock.tick(SCREEN_FPS)
+    # stuff to update every tick
+    handler.keys = pg.key.get_pressed()
+    handler.events = pg.event.get()
+    handler.listen()
+    if handler.gameActive:
+        runGame(handler)
+        collision_list.extend([x.rect for x in map.map if x.rect not in collision_list])
 
-        if handler.gameActive:
-            runGame(handler)
-        else:
-            # mainDisplay.fill('black')
-            # menu.draw(mainDisplay)
-            # menu.mainloop(mainDisplay)
-            pass
-        
-        pg.display.update()
+    pg.display.update()

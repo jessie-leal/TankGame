@@ -56,7 +56,7 @@ class EventHandler():
     def check_hit(self):
         for bullet in list_bullets:
             for player in list_players:
-                if (bullet.owner != player or self.friendlyFire) and bullet.lifespan > BULLET_LIFESPAN-10:
+                if (bullet.owner != player or self.friendlyFire) and bullet.lifespan < BULLET_LIFESPAN-10:
                     if bullet.rect.colliderect(player.rect):
                         bullet.delete_self()
                         player.getHit()
