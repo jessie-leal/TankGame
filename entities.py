@@ -12,8 +12,8 @@ class Texture():
         self.subImages = []
         self.isAnimated = isAnimated
         self.reverse = False
-        self.frames = frames
-        self.frameTime = frameTime
+        self.frames = frames #Number of frames in the animation
+        self.frameTime = frameTime #Number of ticks before the frame changes
 
         self.currentFrame = 0
         self.currentFrameTime = 0
