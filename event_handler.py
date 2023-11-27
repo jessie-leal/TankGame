@@ -35,11 +35,19 @@ class EventHandler():
                 if event.key == pg.K_m and self.paused:
                     self.reset()
 
-            if event.type == pg.KEYUP and event.key == pg.K_SPACE and self.winScreenActive:
-                self.gameActive = False
-                self.winScreenActive = False
-                self.resetPlayers()
-                print("Back to main menu")
+            if event.type == pg.KEYUP:
+                if self.winScreenActive:
+                    if event.key == pg.K_SPACE:
+                        self.gameActive = False
+                        self.winScreenActive = False
+                        self.resetPlayers()
+                        print("Back to main menu")
+                    if event.key == pg.K_r:
+                        self.gameActive = True
+                        self.winScreenActive = False
+                        self.currentMap.redraw()
+                        self.resetPlayers()
+                        print("Game started")
 
     '''
     Main game loop. Runs the game if gameActive is True.
@@ -98,6 +106,9 @@ class EventHandler():
     Rotates the player image according to the player's angle.
     '''   
     def update_game_screen(self):
+        '''
+        Game elements
+        '''
         for player in list_players:
             # Rotate image but not rect
             #Sourced: https://stackoverflow.com/questions/36510795/rotating-a-rectangle-not-image-in-pygame
@@ -109,15 +120,20 @@ class EventHandler():
             # Blit smoke
             if player.hitPoints < DEFAULT_HEALTH:
                 player.smoke.update()
-                sized_smoke = pg.transform.scale(player.smoke.call(), (PLAYER_WIDTH*1.5, PLAYER_WIDTH*1.5))
-                mainDisplay.blit(sized_smoke, (player.rect.center[0] - sized_smoke.get_width()/2, player.rect.center[1] - sized_smoke.get_height()/2))
+                current_frame = player.smoke.call()
+                current_frame = pg.transform.scale(current_frame, (PLAYER_WIDTH*1.5, PLAYER_WIDTH*1.5))
+                rotated_texture = pg.transform.rotate(current_frame, -player.angle)
+                rotated_rect = rotated_texture.get_rect(center=player.rect.center)
+                mainDisplay.blit(rotated_texture, rotated_rect)
             # Draw health bar
             pg.draw.rect(mainDisplay, pg.color.Color('black'), pg.Rect(player.rect.x-1, player.rect.y-11, player.rect.width+2, 7))
             pg.draw.rect(mainDisplay, pg.color.Color('red'), pg.Rect(player.rect.x, player.rect.y - 10, player.rect.width, 5))
             pg.draw.rect(mainDisplay, pg.color.Color('green'), pg.Rect(player.rect.x, player.rect.y - 10, player.rect.width * (player.hitPoints/DEFAULT_HEALTH), 5))
         for bullet in list_bullets:
             mainDisplay.blit(bullet.texture, (bullet.rect.center[0] - bullet.texture.get_width()/2, bullet.rect.center[1] - bullet.texture.get_height()/2))
-        # Pause Screen
+        '''
+        Paused screen
+        '''
         if self.paused:
             #Fonts
             font = pg.font.Font('resources/Crang.ttf', 50)
@@ -197,11 +213,16 @@ class EventHandler():
             mainDisplay.blit(text, text_rect)
             self.winScreenActive = True
         if self.winScreenActive:
-            subtext = subfont.render("Press SPACE to return to main menu", True, pg.color.Color('white'))
-            subtext_shadow = subfont.render("Press SPACE to return to main menu", True, pg.color.Color('black'))
-            subtext_rect = subtext.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+100))
-            mainDisplay.blit(subtext_shadow, (subtext_rect.x+2, subtext_rect.y+2))
-            mainDisplay.blit(subtext, subtext_rect)
+            menuText = subfont.render("Press SPACE to return to main menu", True, pg.color.Color('white'))
+            menuText_shadow = subfont.render("Press SPACE to return to main menu", True, pg.color.Color('black'))
+            subtext_rect = menuText.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+100))
+            mainDisplay.blit(menuText_shadow, (subtext_rect.x+2, subtext_rect.y+2))
+            mainDisplay.blit(menuText, subtext_rect)
+            restartText = subfont.render("Press R to restart", True, pg.color.Color('white'))
+            restartText_shadow = subfont.render("Press R to restart", True, pg.color.Color('black'))
+            restarttext_rect = restartText.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+150))
+            mainDisplay.blit(restartText_shadow, (restarttext_rect.x+2, restarttext_rect.y+2))
+            mainDisplay.blit(restartText, restarttext_rect)
 
     '''
     Resets the game by resetting all players and bullets.
