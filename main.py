@@ -40,8 +40,9 @@ def start_the_game(choice, handler):
     # # draw the maze
     # map.drawMaze(choice)
     collision_list = map.map
+    pass
     handler.gameActive = True
-
+    
 if __name__ == "__main__":
     #Initiate pygame
     pg.init()
@@ -66,6 +67,9 @@ if __name__ == "__main__":
     list_players.append(player1)
     list_players.append(player2)
 
+    mainDisplay.fill('black')
+    menu.draw(mainDisplay)
+    menu.mainloop(mainDisplay)
     while handler.programActive:
         # ticks per seconds
         clock.tick(SCREEN_FPS)
@@ -77,8 +81,9 @@ if __name__ == "__main__":
         if handler.gameActive:
             runGame(handler)
         else:
-            mainDisplay.fill('black')
-            menu.draw(mainDisplay)
-            menu.mainloop(mainDisplay)
+            # mainDisplay.fill('black')
+            # menu.draw(mainDisplay)
+            # menu.mainloop(mainDisplay)
+            pass
         
         pg.display.update()
