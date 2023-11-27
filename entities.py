@@ -3,6 +3,9 @@ import pygame as pg
 from CONSTANTS import *
 import math
 
+'''
+Texture class. Mostly used for animated sprites and other images.
+'''
 class Texture():
     def __init__(self, image, isAnimated = False, frames = 1, frameTime = 1):
         self.image = pg.image.load(image)
@@ -40,13 +43,15 @@ class Texture():
         else:
             return self.image
 
+'''
+Player class that stores information particular to each player. Such as health, ammo, controls, etc.
+'''
 class Player():
     def __init__(self, numPlayer, texture: Texture = None, coord: tuple = (0,0), angleDeg: int = 0, controls: list = "Dummy"):
-
         self.numPlayer = numPlayer
         self.hitPoints = DEFAULT_HEALTH
         self.magazine = DEFAULT_MAGAZINE_SIZE
-        self.currentPowerup = None
+        self.currentPowerup = None #TODO: Implement powerups
         self.dummy = False
 
         self.texture = texture if texture != None else pg.image.load("assets/none.png")
@@ -74,6 +79,10 @@ class Player():
                              "SHOOT": controls[4]
                              }
     
+    '''
+    Handles player movement. Takes in a list of keys pressed and moves the player accordingly.
+    PLAYER_SPEED and PLAYER_TURNING_SPEED are constants that can be changed in CONSTANTS.py
+    '''
     def move(self, keys):
         current_coords = (self.x, self.y)
         if keys[self.controls["BACK"]]:
@@ -99,6 +108,9 @@ class Player():
             self.x = current_coords[0]
             self.y = current_coords[1]
 
+    '''
+    Dummy physics that checks if the player is colliding with anything. If so, the player is moved back to its previous location.
+    '''
     def validate_movement(self):
         collidedObject = self.rect.collideobjects(collision_list)
         temp_rect = self.rect.copy()
@@ -114,21 +126,28 @@ class Player():
         self.rect.center = (self.x, self.y)
         self.angle %= 360
 
+    '''
+    If the player has ammo, a bullet is created and added to the list of bullets.
+    '''
     def shoot(self):
         angle_rad = math.radians(self.angle)
-        print("pew")
         if self.currentPowerup == None:
             self.magazine -= 1
             return Bullet((self.rect.centerx + math.sqrt(0.5)*self.rect.width*math.cos(angle_rad), #Edge of player in circle
                                self.rect.centery + math.sqrt(0.5)*self.rect.height*math.sin(angle_rad)), #Edge of player
                                angle_rad, self)
-        
+
+    '''
+    Reduces the player's health by 1. Smoke is also updated to reflect the player's health.
+    '''    
     def getHit(self):
         if self.hitPoints > 0:
-            print("Ouch")
             self.hitPoints -= 1
             self.smoke.image.set_alpha(255//DEFAULT_HEALTH * (DEFAULT_HEALTH-self.hitPoints))
 
+    '''
+    Resets the player to its default state.
+    '''
     def reset(self, x = SCREEN_WIDTH/2, y = SCREEN_HEIGHT/2, angle = 0):
         self.hitPoints = DEFAULT_HEALTH
         self.magazine = DEFAULT_MAGAZINE_SIZE
@@ -137,7 +156,10 @@ class Player():
         self.y = y
         self.angle = angle
         self.update_location()
-        
+
+'''
+Bullet class that stores information particular to each bullet. Such as lifespan, speed, angle, etc.
+'''
 class Bullet():
     def __init__(self, coord, angleRad, owner = None):
         self.texture = pg.image.load("resources/sprites/bullet.png")
@@ -153,6 +175,9 @@ class Bullet():
         self.speed = BULLET_SPEED
         self.owner = owner
 
+    '''
+    Dummy physics that allows the bullet to bounce off of walls.
+    '''
     def update_location(self):
         self.x += math.cos(self.angle) * self.speed
         self.y += math.sin(self.angle) * self.speed
@@ -170,9 +195,14 @@ class Bullet():
                 self.angle = -self.angle
             elif side == "LEFT" or side == "RIGHT":
                 self.angle = math.pi - self.angle
+            #Delete bullet if completely inside object (to prevent infinite bouncing)
             if collidedObject.collidepoint(self.rect.topleft) and collidedObject.collidepoint(self.rect.bottomright):
                 self.delete_self()
 
+        '''
+        Checks to see if the bullet's new location is still in collision. If so, move the bullet once more.
+        Does not work for some reason.
+        '''
         temp_rect = self.rect.copy()
         temp_rect.center = (self.x, self.y)
         if collidedObject != None:
@@ -185,7 +215,10 @@ class Bullet():
         if self.x > SCREEN_WIDTH + 10 or self.x < -10 or self.y > SCREEN_HEIGHT + 10 or self.y < -10 or self.lifespan <= 0:
             self.delete_self()
 
-
+    '''
+    Draws an X on the collided object to determine which side the bullet collided with.
+    Determines the side by checking if the bullet is above or below the two slopes of the collided object.
+    '''
     def determine_side(self, collidedObject):
         # Slopes of collidedObject (top left to bottom right) and (top right to bottom left)
         slope1 = (collidedObject.topleft[1] - collidedObject.bottomright[1]) / (collidedObject.topleft[0] - collidedObject.bottomright[0])
@@ -205,16 +238,8 @@ class Bullet():
             return "LEFT"
         else:
             return "ERROR"
-        
+    
     def delete_self(self):
         if self in list_bullets:
             self.owner.magazine += 1
             list_bullets.remove(self)
-
-        
-class Laser():
-    def __init__(self, coord, angleRad, owner = None):
-        self.x = coord[0]
-        self.y = coord[1]
-        self.angle = angleRad
-        self.owner = owner

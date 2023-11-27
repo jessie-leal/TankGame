@@ -1,6 +1,10 @@
 import pygame as pg
 from CONSTANTS import *
 
+'''
+Some global variables that are used in multiple files.
+'''
+
 mainDisplay = pg.display.set_mode(SCREEN_RES)
 clock = pg.time.Clock()
 

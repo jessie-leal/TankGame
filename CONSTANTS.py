@@ -1,5 +1,12 @@
 import pygame as pg
 
+'''
+Constants that are used in multiple files. Edit these at your own risk.
+The game was designed in 60FPS, so changing the FPS may cause some unwanted issues.
+Items in paranthesis should be left alone.
+SPEEDs should be pixel per frame, so changing the FPS should not affect the speed of the game.
+'''
+
 #Screen Settings
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720

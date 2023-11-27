@@ -9,7 +9,10 @@ class EventHandler():
         self.keys = None
         self.gameActive = False
         self.programActive = True
-
+    
+    '''
+    Listen for events. Primarily for quitting the game and certain key presses.
+    '''
     def listen(self):
         for event in self.events:
             if event.type == pg.QUIT:
@@ -24,6 +27,10 @@ class EventHandler():
                     self.gameActive = False
                     print("Game reset")
 
+    '''
+    Uses event.type == pg.KEYDOWN to check if a key is pressed so that the player shoots only once per key press.
+    Goes through all players, and if alive, moves the player accordingly.
+    '''
     def player_control_process(self):
         for event in self.events:
             if event.type == pg.KEYDOWN:
@@ -35,10 +42,16 @@ class EventHandler():
             if not player.hitPoints <= 0:
                 player.move(self.keys)
 
+    '''
+    Updates the location of all bullets in the list using their update_location() method.
+    '''
     def update_bullets(self):
         for bullet in list_bullets:
             bullet.update_location()
 
+    '''
+    Checks if a bullet has hit a player. If so, the bullet is deleted and the player takes damage.
+    '''
     def check_hit(self):
         for bullet in list_bullets:
             for player in list_players:
@@ -47,6 +60,9 @@ class EventHandler():
                         bullet.delete_self()
                         player.getHit()
                         
+    '''
+    Blits and draws everything game-related to the screen.
+    '''   
     def update_screen(self):
         for player in list_players:
             # Rotate image but not rect
@@ -70,10 +86,17 @@ class EventHandler():
         if DEBUG:
             self.debug()
 
+    '''
+    Resets the game by resetting all players and bullets.
+    '''
     def reset(self):
         for player in list_players:
             player.reset()
+        list_bullets.clear()
 
+    '''
+    If DEBUG is True, overlays some debug information on the screen.
+    '''
     def debug(self):
         font = pg.font.SysFont('Arial', 20)
         mainDisplay.blit(font.render("FPS: " + str(int(clock.get_fps())), False, pg.color.Color('black')), (0,0))
