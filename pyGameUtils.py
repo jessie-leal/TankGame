@@ -1,7 +1,7 @@
 #Event handler
 
 import pygame
-from Map import Map
+from mapClass import Map
 
 class EventHandler:
     #queueOfEvents starts as empty list

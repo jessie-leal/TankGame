@@ -1,6 +1,6 @@
 import pygame.display
 
-from Wall import Wall, vWall, hWall, tcWall, bcWall, lcWall, rcWall
+from wallClass import *
 
 class Map():
     def __init__(self, display):
@@ -23,7 +23,8 @@ class Map():
 
     #draw the edges of the map
     def draw(self):
-        bgImage = pygame.image.load("Resources/fields.png")
+        # bgImage = pygame.image.load("resources/fields.png")
+        bgImage = pygame.image.load("resources/sprites/none.png")
         bgImage = pygame.transform.scale(bgImage, (1280, 720))
         self.display.blit(bgImage, ((0, 0)))
 
