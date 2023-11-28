@@ -29,6 +29,11 @@ def start_the_game(choice, handler):
     handler.gameActive = True
     # Disable the menu so the mainloop stops
     menu.disable()
+    #start background music
+    music = pg.mixer.music.load("Resources/sound/bggame.ogg")
+    pg.mixer.music.set_volume(.5)
+    pg.mixer.music.play(-1)
+
 
 def create_menu() -> pygame_menu.Menu:
     def set_map(map, value):

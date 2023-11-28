@@ -145,10 +145,14 @@ class EventHandler():
             for player in list_players:
                 if (bullet.owner != player or self.friendlyFire) and bullet.lifespan < BULLET_LIFESPAN-10:
                     if bullet.rect.colliderect(player.rect):
-                        global hit
-                        pg.mixer.Sound.play(self.hit)
+                        if player.hitPoints == 1:
+                            pg.mixer.Sound.play(self.explosion)
+                            pg.mixer.music.stop()
+                        else:
+                            pg.mixer.Sound.play(self.hit)
                         bullet.delete_self()
-                        player.getHit()
+                        player.getHit()    
+                       
                         
     '''
     Blits and draws everything game-related to the screen. 
@@ -247,6 +251,8 @@ class EventHandler():
         subfont = pg.font.Font('resources/Crang.ttf', int(25))
         font.set_bold(False)
         font.set_italic(True)
+        #pg.mixer.Sound.play(self.explosion)
+                     
         if self.winner == 1:
             self.winColor = (0, (self.winColor[1]+(SCREEN_FPS/60))%256, 0)
         elif self.winner == 2:
