@@ -17,6 +17,11 @@ class EventHandler():
         self.winColor = (255, 255, 255)
         self.pauseAngle = 0
         self.programActive = True
+
+        self.s = 'sound'
+        self.shot = pg.mixer.Sound("Resources/sound/shot.wav")
+        self.hit = pg.mixer.Sound("Resources/sound/hit.ogg")
+        self.explosion = pg.mixer.Sound("Resources/sound/explosion.ogg")
         
     
     '''
@@ -77,6 +82,7 @@ class EventHandler():
                     if not player.hitPoints <= 0:
                         if event.key == player.controls["SHOOT"] and player.magazine > 0:
                             bullet = player.shoot()
+                            pg.mixer.Sound.play(self.shot)
                             if bullet != None:
                                 list_bullets.append(bullet)
         for player in list_players:
@@ -98,6 +104,8 @@ class EventHandler():
             for player in list_players:
                 if (bullet.owner != player or self.friendlyFire) and bullet.lifespan < BULLET_LIFESPAN-10:
                     if bullet.rect.colliderect(player.rect):
+                        global hit
+                        pg.mixer.Sound.play(self.hit)
                         bullet.delete_self()
                         player.getHit()
                         
@@ -197,6 +205,7 @@ class EventHandler():
             self.winColor = ((self.winColor[0]+(SCREEN_FPS/60))%256, 0, 0)
         elif cond == 0:
             self.winColor = ((self.winColor[0]-(SCREEN_FPS/60))%256, (self.winColor[1]+(SCREEN_FPS/60))%256, 0)
+            
 
         if cond > 0:
             text = font.render(f"Player {cond} wins!", True, pg.color.Color(self.winColor))

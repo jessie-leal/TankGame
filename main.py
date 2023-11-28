@@ -5,6 +5,11 @@ from entities import *
 from Map import Map
 from event_handler import EventHandler
 import pygame_menu
+
+#shot sounds credit to hosch (https://hosch.itch.io)
+#https://opengameart.org/content/8-bit-sound-effects-2
+
+#explosion sound: https://opengameart.org/content/big-explosion
         
 # define a function to set the map when selector in menu is used.
 # first declare a variable to hold a choice
@@ -43,10 +48,12 @@ if __name__ == "__main__":
     #Initiate pygame
     pg.init()
     pg.font.init()
+    pg.mixer.init()
     pg.display.set_caption("Tank Game")
     pg.display.set_icon(pg.image.load("resources/sprites/tank_icon.png"))
     handler = EventHandler()
     currentMap = Map(mainDisplay)
+    
 
     menu = create_menu()
 
