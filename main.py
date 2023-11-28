@@ -10,6 +10,8 @@ import pygame_menu
 #https://opengameart.org/content/8-bit-sound-effects-2
 
 #explosion sound: https://opengameart.org/content/big-explosion
+
+#Background music credit to bart @  http://opengameart.org
         
 # define a function to set the map when selector in menu is used.
 # first declare a variable to hold a choice
