@@ -1,4 +1,5 @@
 import pygame as pg
+import pygame_menu
 from global_vars import *
 from CONSTANTS import *
 
@@ -21,12 +22,54 @@ class EventHandler():
         self.paused = False
         self.pauseAngle = 0
         # Sound
-        self.s = 'sound'
         self.shot = pg.mixer.Sound("Resources/sound/shot.wav")
+        self.shot.set_volume(0.25)
         self.hit = pg.mixer.Sound("Resources/sound/hit.ogg")
+        self.hit.set_volume(0.25)
         self.explosion = pg.mixer.Sound("Resources/sound/explosion.ogg")
         
-    
+    # define a function to set the map when selector in menu is used.
+    # first declare a variable to hold a choice
+    def create_menu(self, map) -> pygame_menu.Menu:
+        choice = 1
+
+        def start_the_game(choice):
+            # Create the selected map
+            map.createMaze(map.maze)
+            self.currentMap = map
+            # Add map's rects to collision list
+            collision_list.clear()
+            collision_list.extend([x.rect for x in map.map if x.rect not in collision_list])
+            # Reset players
+            self.resetPlayers()
+            # Start the game
+            self.gameActive = True
+            # Disable the menu so the mainloop stops
+            menu.disable()
+            #start background music
+            music = pg.mixer.music.load("Resources/sound/bggame.ogg")
+            pg.mixer.music.set_volume(0.15)
+            pg.mixer.music.play(-1)
+        
+        def set_map(mapNum, value):
+            global choice
+            if value == 1:
+                choice = 1
+            elif value == 2:
+                choice = 2
+            else:
+                choice = 3
+            map.maze = choice
+            
+        menu = pygame_menu.Menu('Tank Game', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
+        # mapMenu = pygame_menu.Menu('Select a Map', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
+        menu.add.selector('Choose Your Map :', [('Map 1', 1), ('Map 2', 2), ('Map 3', 3)], onchange=set_map)
+        menu.add.button('Play', lambda: start_the_game(choice))
+        menu.add.button('Quit', pygame_menu.events.EXIT)
+        menu.add.surface
+
+        return menu
+
     '''
     Listen for events. Primarily for quitting the game and certain key presses.
     '''
@@ -39,7 +82,11 @@ class EventHandler():
                 if event.key == pg.K_ESCAPE and self.gameActive and not self.winScreenActive:
                     self.paused = not self.paused
                     if self.paused:
+                        pg.mixer.music.set_volume(pg.mixer.music.get_volume()/4)
                         print("Game paused")
+                    else:
+                        pg.mixer.music.set_volume(pg.mixer.music.get_volume()*4)
+                        print("Game resumed")
                 if event.key == pg.K_m and self.paused:
                     self.reset()
 
@@ -49,12 +96,14 @@ class EventHandler():
                         self.gameActive = False
                         self.winScreenActive = False
                         self.resetPlayers()
+                        pg.mixer.music.stop()
                         print("Back to main menu")
                     if event.key == pg.K_r:
                         self.gameActive = True
                         self.winScreenActive = False
                         self.currentMap.redraw()
                         self.resetPlayers()
+                        pg.mixer.music.play(-1)
                         print("Game started")
 
     '''
@@ -62,27 +111,33 @@ class EventHandler():
     '''
     def control_splash_screen(self):
         mainDisplay.fill('black')
-        # Fade in for 2 seconds
+        # Fade in for 1 seconds
         ticks = 0
-        while ticks <= 60:
+        while ticks <= 30:
             clock.tick(30)
             ticks += 1
             font = pg.font.Font('resources/Crang.ttf', 20)
             self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2-50, "Player 1: WASD to move, Q to shoot", font, shadow=True)
             self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, "Player 2: Arrow keys to move, RSHIFT to shoot", font, shadow=True)
             translucent = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            translucent.set_alpha(255*(60-ticks)/20)
+            translucent.set_alpha(255*(30-ticks)/20)
             mainDisplay.blit(translucent, (0,0))
+            self.keys = pg.key.get_pressed()
+            self.events = pg.event.get()
+            self.listen()
             pg.display.update()
         
-        # Wait 3 seconds
+        # Wait 2 seconds
         ticks = 0
-        while ticks <= 3:
-            clock.tick(1)
+        while ticks <= 60:
+            clock.tick(30)
             ticks += 1
+            self.keys = pg.key.get_pressed()
+            self.events = pg.event.get()
+            self.listen()
         
-        # Fade out for 2 seconds
-        ticks = 60
+        # Fade out for 1 seconds
+        ticks = 30
         while ticks >= 0:
             clock.tick(30)
             ticks -= 1
@@ -90,8 +145,11 @@ class EventHandler():
             self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2-50, "Player 1: WASD to move, Q to shoot", font, shadow=True)
             self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, "Player 2: Arrow keys to move, RSHIFT to shoot", font, shadow=True)
             translucent = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            translucent.set_alpha(255*(60-ticks)/20)
+            translucent.set_alpha(255*(30-ticks)/20)
             mainDisplay.blit(translucent, (0,0))
+            self.keys = pg.key.get_pressed()
+            self.events = pg.event.get()
+            self.listen()
             pg.display.update()
 
     '''
@@ -123,8 +181,8 @@ class EventHandler():
                     if not player.hitPoints <= 0:
                         if event.key == player.controls["SHOOT"] and player.magazine > 0:
                             bullet = player.shoot()
-                            pg.mixer.Sound.play(self.shot)
                             if bullet != None:
+                                pg.mixer.Sound.play(self.shot)
                                 list_bullets.append(bullet)
         for player in list_players:
             if not player.hitPoints <= 0:
@@ -287,6 +345,7 @@ class EventHandler():
     Resets the game as a whole.
     '''
     def reset(self):
+        pg.mixer.music.stop()
         self.gameActive = False
         self.winScreenActive = False
         self.paused = False
