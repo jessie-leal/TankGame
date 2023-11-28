@@ -255,12 +255,8 @@ class EventHandler():
             self.winColor = ((self.winColor[0]-(SCREEN_FPS/60))%256, (self.winColor[1]+(SCREEN_FPS/60))%256, 0)
             
 
-        if cond > 0:
-            text = font.render(f"Player {cond} wins!", True, pg.color.Color(self.winColor))
-            text_shadow = font.render(f"Player {cond} wins!", True, pg.color.Color('black'))
-            text_rect = text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/3))
-            mainDisplay.blit(text_shadow, (text_rect.x+4, text_rect.y+4))
-            mainDisplay.blit(text, text_rect)
+        if self.winner > 0:
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/3, f"Player {str(self.winner)} wins!", font, pg.color.Color(self.winColor), shadow=True, shadowColor=pg.color.Color('black'), shadowOffset=4)
             self.winScreenActive = True
         if self.winner == 0:
             self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/3, "It's a draw!", font, pg.color.Color(self.winColor), shadow=True, shadowColor=pg.color.Color('black'), shadowOffset=4)
