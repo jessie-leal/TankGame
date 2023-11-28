@@ -2,7 +2,7 @@ import pygame as pg
 from CONSTANTS import *
 from global_vars import *
 from entities import *
-from mapClass import Map
+from Map import Map
 from event_handler import EventHandler
 import pygame_menu
         
@@ -23,6 +23,8 @@ def set_map(map, value):
 
 def start_the_game(choice, handler):
     handler.gameActive = True
+    collision_list.clear()
+    currentMap.createMaze(currentMap.maze)
     currentMap.redraw()
     handler.currentMap = currentMap
     handler.resetPlayers()

@@ -1,11 +1,6 @@
 # from pyGameUtils import *
 import pygame
 
-#<a href="https://www.vecteezy.com/free-vector/brick-pattern">Brick Pattern Vectors by Vecteezy</a>
-
-
-#Grass Lawn Field - Free stock photo on Pixabay - Pixabay
-#https://pixabay.com/photos/grass-lawn-field-meadow-grassy-84622/
 class Wall:
     def __init__(self, width, height, xpos, ypos):
         # self.image = pygame.image.load("resources/wall2.jpg")
@@ -22,35 +17,10 @@ class Wall:
     display as an input parameter and will draw the
     Wall on the screen at its currently set x and y location
     '''
+
     def draw(self, display):
         # draw the image to the screen
         display.blit(self.image, (self.x, self.y))
-
-
-    '''
-    Define a method update() which will change the positions of the Berry image
-     and the Rect of the berry each time it is called (it will be called once each frame).
-      "drop" attribute will define how far the Berry drops down on each frame. 
-    '''
-    def update(self):
-        #The y-coordinate of the berry should drop down by "drop" each time this is called
-        self.y += self.drop
-        #To move the rect as well, you can access the y attribute of the rect
-        self.rect.y = self.y
-
-    '''
-    Define a method reload(), which will reload the 
-    berry at the top of the screen, with y = 0. 
-    This will run later on If the y coordinate of
-    the Berry goes below the bottom of your screen.
-    '''
-
-    def reload(self):
-        WINDOW_WIDTH = 800
-        self.y = 0
-        #self.x = random.randint(0, WINDOW_WIDTH)
-        self.rect = pygame.Rect(self.image.get_rect())
-
 
 #vertical wall
 class vWall(Wall):
@@ -66,7 +36,6 @@ class tcWall(vWall):
 class bcWall(vWall):
     def __init__(self, length, xpos, screenHeight):
         super().__init__(length, xpos, screenHeight-length-20)
-
 
 #Define horizontal walls
 class hWall(Wall):
