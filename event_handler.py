@@ -20,6 +20,12 @@ class EventHandler():
         # Pause screen variables
         self.paused = False
         self.pauseAngle = 0
+        # Sound
+        self.s = 'sound'
+        self.shot = pg.mixer.Sound("Resources/sound/shot.wav")
+        self.hit = pg.mixer.Sound("Resources/sound/hit.ogg")
+        self.explosion = pg.mixer.Sound("Resources/sound/explosion.ogg")
+        
     
     '''
     Listen for events. Primarily for quitting the game and certain key presses.
@@ -117,6 +123,7 @@ class EventHandler():
                     if not player.hitPoints <= 0:
                         if event.key == player.controls["SHOOT"] and player.magazine > 0:
                             bullet = player.shoot()
+                            pg.mixer.Sound.play(self.shot)
                             if bullet != None:
                                 list_bullets.append(bullet)
         for player in list_players:
@@ -138,6 +145,8 @@ class EventHandler():
             for player in list_players:
                 if (bullet.owner != player or self.friendlyFire) and bullet.lifespan < BULLET_LIFESPAN-10:
                     if bullet.rect.colliderect(player.rect):
+                        global hit
+                        pg.mixer.Sound.play(self.hit)
                         bullet.delete_self()
                         player.getHit()
                         
@@ -244,9 +253,14 @@ class EventHandler():
             self.winColor = ((self.winColor[0]+(SCREEN_FPS/60))%256, 0, 0)
         elif self.winner == 0:
             self.winColor = ((self.winColor[0]-(SCREEN_FPS/60))%256, (self.winColor[1]+(SCREEN_FPS/60))%256, 0)
+            
 
-        if self.winner > 0:
-            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/3, f"Player {self.winner} wins!", font, pg.color.Color(self.winColor), shadow=True, shadowColor=pg.color.Color('black'), shadowOffset=4)
+        if cond > 0:
+            text = font.render(f"Player {cond} wins!", True, pg.color.Color(self.winColor))
+            text_shadow = font.render(f"Player {cond} wins!", True, pg.color.Color('black'))
+            text_rect = text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/3))
+            mainDisplay.blit(text_shadow, (text_rect.x+4, text_rect.y+4))
+            mainDisplay.blit(text, text_rect)
             self.winScreenActive = True
         if self.winner == 0:
             self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/3, "It's a draw!", font, pg.color.Color(self.winColor), shadow=True, shadowColor=pg.color.Color('black'), shadowOffset=4)
