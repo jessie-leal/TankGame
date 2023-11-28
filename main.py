@@ -5,37 +5,45 @@ from entities import *
 from Map import Map
 from event_handler import EventHandler
 import pygame_menu
-        
+
 # define a function to set the map when selector in menu is used.
 # first declare a variable to hold a choice
 
 choice = 1
 
-def set_map(map, value):
-    global choice
-    if value == 1:
-        choice = 1
-    elif value == 2:
-        choice = 2
-    else:
-        choice = 3
-    currentMap.maze = choice
+
 
 def start_the_game(choice, handler):
-    handler.gameActive = True
-    collision_list.clear()
+    # Create the selected map
     currentMap.createMaze(currentMap.maze)
-    currentMap.redraw()
     handler.currentMap = currentMap
+    # Add map's rects to collision list
+    collision_list.clear()
+    collision_list.extend([x.rect for x in currentMap.map if x.rect not in collision_list])
+    # Reset players
     handler.resetPlayers()
+    # Start the game
+    handler.gameActive = True
+    # Disable the menu so the mainloop stops
     menu.disable()
 
 def create_menu() -> pygame_menu.Menu:
+    def set_map(map, value):
+        global choice
+        if value == 1:
+            choice = 1
+        elif value == 2:
+            choice = 2
+        else:
+            choice = 3
+        currentMap.maze = choice
+        
     menu = pygame_menu.Menu('Tank Game', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
     # mapMenu = pygame_menu.Menu('Select a Map', 500, 300, theme=pygame_menu.themes.THEME_BLUE)
     menu.add.selector('Choose Your Map :', [('Map 1', 1), ('Map 2', 2), ('Map 3', 3)], onchange=set_map)
     menu.add.button('Play', lambda: start_the_game(choice, handler))
     menu.add.button('Quit', pygame_menu.events.EXIT)
+    menu.add.surface
 
     return menu
 
@@ -59,6 +67,8 @@ if __name__ == "__main__":
     list_players.append(player1)
     list_players.append(player2)
 
+    handler.control_splash_screen()
+
     mainDisplay.fill('black')
     menu.draw(mainDisplay)
     menu.mainloop(mainDisplay)
@@ -72,8 +82,6 @@ if __name__ == "__main__":
 
         if handler.gameActive:
             handler.runGame(currentMap)
-            collision_list.extend([x.rect for x in currentMap.map if x.rect not in collision_list])
-            handler.checkWinCondition()
         elif not menu.is_enabled():
             menu.enable()
             menu.mainloop(mainDisplay)

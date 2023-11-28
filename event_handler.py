@@ -1,23 +1,25 @@
 import pygame as pg
-import pygame_menu as pgm
 from global_vars import *
 from CONSTANTS import *
 
 class EventHandler():
     def __init__(self):
+        # General variables
         self.display = mainDisplay
         self.events = None
         self.keys = None
-
+        self.programActive = True
+        # Game variables
         self.currentMap = None
         self.friendlyFire = True
         self.gameActive = False
+        # Win screen variables
+        self.winner = None
         self.winScreenActive = False
-        self.paused = False
         self.winColor = (255, 255, 255)
+        # Pause screen variables
+        self.paused = False
         self.pauseAngle = 0
-        self.programActive = True
-        
     
     '''
     Listen for events. Primarily for quitting the game and certain key presses.
@@ -50,6 +52,43 @@ class EventHandler():
                         print("Game started")
 
     '''
+    Fades in and out the splash screen. Displays the controls for the game.
+    '''
+    def control_splash_screen(self):
+        mainDisplay.fill('black')
+        # Fade in for 2 seconds
+        ticks = 0
+        while ticks <= 60:
+            clock.tick(30)
+            ticks += 1
+            font = pg.font.Font('resources/Crang.ttf', 20)
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2-50, "Player 1: WASD to move, Q to shoot", font, shadow=True)
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, "Player 2: Arrow keys to move, RSHIFT to shoot", font, shadow=True)
+            translucent = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+            translucent.set_alpha(255*(60-ticks)/20)
+            mainDisplay.blit(translucent, (0,0))
+            pg.display.update()
+        
+        # Wait 3 seconds
+        ticks = 0
+        while ticks <= 3:
+            clock.tick(1)
+            ticks += 1
+        
+        # Fade out for 2 seconds
+        ticks = 60
+        while ticks >= 0:
+            clock.tick(30)
+            ticks -= 1
+            font = pg.font.Font('resources/Crang.ttf', 20)
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2-50, "Player 1: WASD to move, Q to shoot", font, shadow=True)
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, "Player 2: Arrow keys to move, RSHIFT to shoot", font, shadow=True)
+            translucent = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+            translucent.set_alpha(255*(60-ticks)/20)
+            mainDisplay.blit(translucent, (0,0))
+            pg.display.update()
+
+    '''
     Main game loop. Runs the game if gameActive is True.
     '''
     def runGame(self, map):
@@ -60,6 +99,7 @@ class EventHandler():
                     self.player_control_process()
                 self.update_bullets()
                 self.check_hit()
+                self.winner = self.check_win()
             
             # Map handling
             map.redraw()
@@ -106,9 +146,7 @@ class EventHandler():
     Rotates the player image according to the player's angle.
     '''   
     def update_game_screen(self):
-        '''
-        Game elements
-        '''
+        # Blit players
         for player in list_players:
             # Rotate image but not rect
             #Sourced: https://stackoverflow.com/questions/36510795/rotating-a-rectangle-not-image-in-pygame
@@ -129,23 +167,48 @@ class EventHandler():
             pg.draw.rect(mainDisplay, pg.color.Color('black'), pg.Rect(player.rect.x-1, player.rect.y-11, player.rect.width+2, 7))
             pg.draw.rect(mainDisplay, pg.color.Color('red'), pg.Rect(player.rect.x, player.rect.y - 10, player.rect.width, 5))
             pg.draw.rect(mainDisplay, pg.color.Color('green'), pg.Rect(player.rect.x, player.rect.y - 10, player.rect.width * (player.hitPoints/DEFAULT_HEALTH), 5))
+        
+        # Blit bullets
         for bullet in list_bullets:
             mainDisplay.blit(bullet.texture, (bullet.rect.center[0] - bullet.texture.get_width()/2, bullet.rect.center[1] - bullet.texture.get_height()/2))
-        '''
-        Paused screen
-        '''
+        
+        # Win screen
+        if self.winner >= 0:
+            self.win_screen()
+
+        # Pause screen
         if self.paused:
-            #Fonts
+            self.pause_screen()
+
+        # Debug information. Hitboxes, FPS, number of bullets and players
+        if DEBUG:
+            self.debug()
+
+    def draw_text(self, x, y, text, font, color='white', shadow=None, shadowColor='black', shadowOffset=2):
+        if shadow != None:
+            text_surface = font.render(text, True, pg.color.Color(shadowColor))
+            text_rect = text_surface.get_rect()
+            text_rect.center = (x+shadowOffset, y+shadowOffset)
+            self.display.blit(text_surface, text_rect)
+        text_surface = font.render(text, True, pg.color.Color(color))
+        text_rect = text_surface.get_rect()
+        text_rect.center = (x, y)
+        self.display.blit(text_surface, text_rect)
+        
+    '''
+    Pause screen. Displays the text "PAUSED" and rotates the player image.
+    '''
+    def pause_screen(self):
+        #Fonts
+            translucent = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+            translucent.fill((0,0,0))
+            translucent.set_alpha(128)
+            mainDisplay.blit(translucent, (0,0))
             font = pg.font.Font('resources/Crang.ttf', 50)
             subfont = pg.font.Font('resources/Crang.ttf', 25)
-            translucent = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pg.SRCALPHA)
-            translucent.fill((0,0,0,128))
-            mainDisplay.blit(translucent, (0,0))
-            text = font.render("PAUSED", True, pg.color.Color('white'))
-            text_shadow = font.render("PAUSED", True, pg.color.Color('black'))
-            text_rect = text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/3))
-            mainDisplay.blit(text_shadow, (text_rect.x+2, text_rect.y+2))
-            mainDisplay.blit(text, text_rect)
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/3, "PAUSED", font, 'white', shadow=True, shadowColor='black')
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+100, "Press M to return to main menu", subfont, 'white', shadow=True, shadowColor='black')
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+150, "Press ESC to return to game", subfont, 'white', shadow=True, shadowColor='black')
             #Rotating tank
             #Sourced: https://stackoverflow.com/questions/36510795/rotating-a-rectangle-not-image-in-pygame
             current_frame = list_players[0].texture.call()
@@ -154,26 +217,11 @@ class EventHandler():
             self.pauseAngle = (self.pauseAngle + 1) % 360
             rotated_rect = rotated_texture.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
             mainDisplay.blit(rotated_texture, rotated_rect)
-            #Subtext
-            returnText = subfont.render("Press M to return to main menu", True, pg.color.Color('white'))
-            returnText_shadow = subfont.render("Press M to return to main menu", True, pg.color.Color('black'))
-            subtext_rect = returnText.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+100))
-            mainDisplay.blit(returnText_shadow, (subtext_rect.x+2, subtext_rect.y+2))
-            mainDisplay.blit(returnText, subtext_rect)
-            backText = subfont.render("Press ESC to return to game", True, pg.color.Color('white'))
-            backText_shadow = subfont.render("Press ESC to return to game", True, pg.color.Color('black'))
-            backtext_rect = backText.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+150))
-            mainDisplay.blit(backText_shadow, (backtext_rect.x+2, backtext_rect.y+2))
-            mainDisplay.blit(backText, backtext_rect)
-
-        # Debug information. Hitboxes, FPS, number of bullets and players
-        if DEBUG:
-            self.debug()
 
     '''
     Checks if there is only one player alive. If so, returns the player number of the winner.
     '''
-    def win_condition(self):
+    def check_win(self):
         alive = [x for x in list_players if x.hitPoints > 0]
         if len(alive) == 1:
             return alive[0].numPlayer
@@ -185,44 +233,27 @@ class EventHandler():
     '''
     Checks if the win condition is met. If so, displays the win screen.
     '''
-    def checkWinCondition(self):
-        cond = self.win_condition()
+    def win_screen(self):
         font = pg.font.Font('resources/Crang.ttf', int(100))
         subfont = pg.font.Font('resources/Crang.ttf', int(25))
         font.set_bold(False)
         font.set_italic(True)
-        if cond == 1:
+        if self.winner == 1:
             self.winColor = (0, (self.winColor[1]+(SCREEN_FPS/60))%256, 0)
-        elif cond == 2:
+        elif self.winner == 2:
             self.winColor = ((self.winColor[0]+(SCREEN_FPS/60))%256, 0, 0)
-        elif cond == 0:
+        elif self.winner == 0:
             self.winColor = ((self.winColor[0]-(SCREEN_FPS/60))%256, (self.winColor[1]+(SCREEN_FPS/60))%256, 0)
 
-        if cond > 0:
-            text = font.render(f"Player {cond} wins!", True, pg.color.Color(self.winColor))
-            text_shadow = font.render(f"Player {cond} wins!", True, pg.color.Color('black'))
-            text_rect = text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/3))
-            mainDisplay.blit(text_shadow, (text_rect.x+4, text_rect.y+4))
-            mainDisplay.blit(text, text_rect)
+        if self.winner > 0:
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/3, f"Player {self.winner} wins!", font, pg.color.Color(self.winColor), shadow=True, shadowColor=pg.color.Color('black'), shadowOffset=4)
             self.winScreenActive = True
-        if cond == 0:
-            text = font.render("It's a draw!", True, pg.color.Color(self.winColor))
-            text_shadow = font.render("It's a draw!", True, pg.color.Color('black'))
-            text_rect = text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/3))
-            mainDisplay.blit(text_shadow, (text_rect.x+4, text_rect.y+4))
-            mainDisplay.blit(text, text_rect)
+        if self.winner == 0:
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/3, "It's a draw!", font, pg.color.Color(self.winColor), shadow=True, shadowColor=pg.color.Color('black'), shadowOffset=4)
             self.winScreenActive = True
         if self.winScreenActive:
-            menuText = subfont.render("Press SPACE to return to main menu", True, pg.color.Color('white'))
-            menuText_shadow = subfont.render("Press SPACE to return to main menu", True, pg.color.Color('black'))
-            subtext_rect = menuText.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+100))
-            mainDisplay.blit(menuText_shadow, (subtext_rect.x+2, subtext_rect.y+2))
-            mainDisplay.blit(menuText, subtext_rect)
-            restartText = subfont.render("Press R to restart", True, pg.color.Color('white'))
-            restartText_shadow = subfont.render("Press R to restart", True, pg.color.Color('black'))
-            restarttext_rect = restartText.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+150))
-            mainDisplay.blit(restartText_shadow, (restarttext_rect.x+2, restarttext_rect.y+2))
-            mainDisplay.blit(restartText, restarttext_rect)
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+50, "Press SPACE to return to main menu", subfont, pg.color.Color('white'), shadow=True, shadowColor=pg.color.Color('black'))
+            self.draw_text(SCREEN_WIDTH/2, SCREEN_HEIGHT/2+100, "Press R to restart", subfont, pg.color.Color('white'), shadow=True, shadowColor=pg.color.Color('black'))
 
     '''
     Resets the game by resetting all players and bullets.
@@ -235,7 +266,10 @@ class EventHandler():
             except:
                 player.reset()
         list_bullets.clear()
-
+    
+    '''
+    Resets the game as a whole.
+    '''
     def reset(self):
         self.gameActive = False
         self.winScreenActive = False
