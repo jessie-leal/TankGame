@@ -33,7 +33,8 @@ if __name__ == "__main__":
     list_players.append(player1)
     list_players.append(player2)
 
-    handler.control_splash_screen()
+    if not SKIP_SPLASH_SCREEN:
+        handler.control_splash_screen()
 
     mainDisplay.fill('black')
     menu.draw(mainDisplay)

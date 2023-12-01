@@ -255,7 +255,7 @@ class EventHandler():
         if DEBUG:
             self.debug()
 
-    def draw_text(self, x, y, text, font, color='white', shadow=None, shadowColor='black', shadowOffset=2):
+    def draw_text(self, x, y, text, font, color='white', shadow=None, shadowColor='black', shadowOffset=2, center=True):
         if shadow != None:
             text_surface = font.render(text, True, pg.color.Color(shadowColor))
             text_rect = text_surface.get_rect()
@@ -263,7 +263,10 @@ class EventHandler():
             self.display.blit(text_surface, text_rect)
         text_surface = font.render(text, True, pg.color.Color(color))
         text_rect = text_surface.get_rect()
-        text_rect.center = (x, y)
+        if center:
+            text_rect.center = (x, y)
+        else:
+            text_rect.topleft = (x, y)
         self.display.blit(text_surface, text_rect)
         
     '''
@@ -357,11 +360,17 @@ class EventHandler():
     If DEBUG is True, overlays some debug information on the screen.
     '''
     def debug(self):
-        font = pg.font.Font(None, 20)
-        mainDisplay.blit(font.render("FPS: " + str(int(clock.get_fps())), False, pg.color.Color('black')), (0,0))
-        mainDisplay.blit(font.render("Bullets: " + str(len(list_bullets)), False, pg.color.Color('black')), (0,20))
-        mainDisplay.blit(font.render("Players: " + str(len(list_players)), False, pg.color.Color('black')), (0,40))
+        # Hitboxes
         for player in list_players:
             mainDisplay.blit(player.image, player.rect)
         for bullet in list_bullets:
             mainDisplay.blit(bullet.image, bullet.rect)
+        for rect in collision_list:
+            pg.draw.line(mainDisplay, pg.color.Color('red'), rect.topleft, rect.bottomright)
+            pg.draw.line(mainDisplay, pg.color.Color('red'), rect.topright, rect.bottomleft)
+        
+        # Debug information
+        font = pg.font.Font(None, 20)
+        self.draw_text(0, 0, "FPS: " + str(int(clock.get_fps())), font, center=False)
+        self.draw_text(0, 20, "Bullets: " + str(len(list_bullets)), font, center=False)
+        self.draw_text(0, 40, "Players: " + str(len(list_players)), font, center=False)
